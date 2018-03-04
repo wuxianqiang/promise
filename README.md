@@ -164,6 +164,7 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
   }
 }
 ```
+链式调用的特点：第一个then中不管成功还是失败都会都会将返回值作为下一次成功时回调函数的参数的参数
 ## 实现catch方法
 ```js
 function Promise(excutor) {
