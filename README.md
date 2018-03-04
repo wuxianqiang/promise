@@ -2,199 +2,35 @@
 
 ```js
 function Promise(excutor) {
-  let self = this
-  self.state = 'padding'
-  self.value = undefined
-  self.reason = undefined
+  let self = this;
+  self.status = "padding";
+  self.value = undefined;
+  self.reason = undefined;
 
+  self.onResolvedCallback = [];
+  self.onRejectedCallback = [];
+
+  // 修改状态，保存值
   function resolve(value) {
-    if (self.state === 'paddding') {
-      status.value = value
-      status.state = 'resolved'
+    if (self.status === "padding") {
+      self.status = "resolved";
+      self.value = value
+      self.onResolvedCallback.forEach(item => item(self.value));
     }
   }
 
   function reject(reason) {
-    if (self.state === 'paddding') {
-      status.reason = reason
-      status.state = 'rejected'
-    }
-  }
-  
-  try {
-    excutor(resolve, reject)
-  } catch (err) {
-    reject(err)
-  }
-}
-
-Promise.prototype.then = function (onFulfilled, onRejected) {
-  if (self.status === 'resolved') {
-    onFulfilled(self.value)
-  }
-  if (self.status === 'rejected') {
-    onRejected(self.reason)
-  }
-}
-```
-
-## 实现简单调用
-```js
-function Promise(excutor) {
-  let self = this
-  self.state = 'padding'
-  self.value = undefined
-  self.reason = undefined
-  self.onFulfilledCallBacks = []
-  self.onRejectedCallBacks = []
-
-  function resolve(value) {
-    if (self.state === 'paddding') {
-      status.value = value
-      status.state = 'resolved'
-      self.onFulfilledCallBacks.forEach(item => item(self.value))
-    }
-  }
-
-  function reject(reason) {
-    if (self.state === 'paddding') {
-      status.reason = reason
-      status.state = 'rejected'
-      self.onRejectedCallBacks.forEach(item => item(self.reason))
+    if (self.status === "padding") {
+      self.status = "rejected";
+      self.reason = reason;
+      self.onRejectedCallback.forEach(item => item(self.reason));
     }
   }
 
   try {
     excutor(resolve, reject)
-  } catch (err) {
-    reject(err)
-  }
-}
-
-Promise.prototype.then = function (onFulfilled, onRejected) {
-  if (self.status === 'resolved') {
-    onFulfilled(self.value)
-  }
-  if (self.status === 'rejected') {
-    onRejected(self.reason)
-  }
-  if (self.status === 'padding') {
-    self.onFulfilledCallBacks.push(onFulfilled)
-    self.onRejectedCallBacks.push(onRejected)
-  }
-}
-```
-## 实现链式调用
-```js
-function Promise(excutor) {
-  let self = this
-  self.state = 'padding'
-  self.value = undefined
-  self.reason = undefined
-  self.onFulfilledCallBacks = []
-  self.onRejectedCallBacks = []
-
-  function resolve(value) {
-    if (self.state === 'paddding') {
-      status.value = value
-      status.state = 'resolved'
-      self.onFulfilledCallBacks.forEach(item => item(self.value))
-    }
-  }
-
-  function reject(reason) {
-    if (self.state === 'paddding') {
-      status.reason = reason
-      status.state = 'rejected'
-      self.onRejectedCallBacks.forEach(item => item(self.reason))
-    }
-  }
-
-  try {
-    excutor(resolve, reject)
-  } catch (err) {
-    reject(err)
-  }
-}
-
-Promise.prototype.then = function (onFulfilled, onRejected) {
-  if (self.status === 'resolved') {
-    return new Promise(function (resolve, reject) {
-      let promise2 = onFulfilled(self.value)
-      if (promise2 instanceof Promise) {
-        promise2.then(resolve, reject)
-      } else {
-        resolve(promise2)
-      }
-    })
-  }
-
-  if (self.status === 'rejected') {
-    return new Promise(function (resolve, reject) {
-      let promise2 = onRejected(self.reason)
-      if (promise2 instanceof Promise) {
-        promise2.then(resolve, reject)
-      } else {
-        resolve(promise2)
-      }
-    })
-  }
-
-  if (self.status === 'padding') {
-    self.onFulfilledCallBacks.push(
-      function (resolve, reject) {
-        let promise2 = onFulfilled(self.value)
-        if (promise2 instanceof Promise) {
-          promise2.then(resolve, reject)
-        } else {
-          resolve(promise2)
-        }
-      }
-    )
-    self.onRejectedCallBacks.push(
-      function (resolve, reject) {
-        let promise2 = onRejected(self.reason)
-        if (promise2 instanceof Promise) {
-          promise2.then(resolve, reject)
-        } else {
-          resolve(promise2)
-        }
-      }
-    )
-  }
-}
-```
-链式调用的特点：第一个then中不管成功还是失败都会都会将返回值作为下一次成功时回调函数的参数的参数
-## 实现catch方法
-```js
-function Promise(excutor) {
-  let self = this
-  self.state = 'padding'
-  self.value = undefined
-  self.reason = undefined
-  self.onFulfilledCallBacks = []
-  self.onRejectedCallBacks = []
-
-  function resolve(value) {
-    if (self.state === 'paddding') {
-      status.value = value
-      status.state = 'resolved'
-      self.onFulfilledCallBacks.forEach(item => item(self.value))
-    }
-  }
-
-  function reject(reason) {
-    if (self.state === 'paddding') {
-      status.reason = reason
-      status.state = 'rejected'
-      self.onRejectedCallBacks.forEach(item => item(self.reason))
-    }
-  }
-
-  try {
-    excutor(resolve, reject)
-  } catch (err) {
-    reject(err)
+  } catch (error) { //有错误会走向失败
+    reject(error)
   }
 }
 
@@ -202,64 +38,66 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
   onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : function (data) {
     resolve(data)
   }
-  onRejected = typeof onRejected === 'function' ? onRejected : function (err) {
-    throw err
+  onRejected = typeof onRejected === 'function' ? onRejected : function (error) {
+    throw error
   }
-  if (self.status === 'resolved') {
+  let self = this;
+  // 执行方法，传入值
+  let promise2
+  if (self.status === "resolved") {
     return new Promise(function (resolve, reject) {
+      // 前一个then中不管成功还是失败返回值都会作为下一then中成功时的回调
       try {
-        let promise2 = onFulfilled(self.value)
-        if (promise2 instanceof Promise) {
-          promise2.then(resolve, reject)
+        let x = onFulfilled(self.value);
+        if (x instanceof Promise) {
+          x.then(resolve, reject)
         } else {
-          resolve(promise2)
+          resolve(x)
         }
-      } catch (err) {
-        reject(err)
+      } catch (error) {
+        reject(error)
       }
     })
   }
 
-  if (self.status === 'rejected') {
+  if (self.status === "rejected") {
     return new Promise(function (resolve, reject) {
       try {
-        let promise2 = onRejected(self.reason)
-        if (promise2 instanceof Promise) {
-          promise2.then(resolve, reject)
+        let x = onRejected(self.reason);
+        if (x instanceof Promise) {
+          x.then(resolve, reject)
         } else {
-          resolve(promise2)
+          resolve(x)
         }
-      } catch (err) {
-        reject(err)
+      } catch (error) {
+        reject(error)
       }
     })
   }
 
-  if (self.status === 'padding') {
-    self.onFulfilledCallBacks.push(
-      function (resolve, reject) {
-        let promise2 = onFulfilled(self.value)
-        if (promise2 instanceof Promise) {
-          promise2.then(resolve, reject)
+  // 处理异步情况
+  if (self.status === "padding") {
+    return new Promise(function (resolve, reject) {
+      self.onResolvedCallback.push(function () {
+        let x = onFulfilled(self.value);
+        if (x instanceof Promise) {
+          x.then(resolve, reject)
         } else {
-          resolve(promise2)
+          resolve(x)
         }
-      }
-    )
-    self.onRejectedCallBacks.push(
-      function (resolve, reject) {
-        let promise2 = onRejected(self.reason)
-        if (promise2 instanceof Promise) {
-          promise2.then(resolve, reject)
+      });
+      self.onRejectedCallback.push(function () {
+        let x = onRejected(self.reason);
+        if (x instanceof Promise) {
+          x.then(resolve, reject)
         } else {
-          resolve(promise2)
+          resolve(x)
         }
-      }
-    )
+      });
+    })
   }
 }
-
-Promise.prototype.catch = function (callback) {
-  this.then(null, callback)
+Promise.prototype.catch = function (cb) {
+  return this.then(null, cb)
 }
 ```
