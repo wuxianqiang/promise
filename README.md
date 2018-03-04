@@ -10,7 +10,6 @@ function Promise(excutor) {
   self.onResolvedCallback = [];
   self.onRejectedCallback = [];
 
-  // 修改状态，保存值
   function resolve(value) {
     if (self.status === "padding") {
       self.status = "resolved";
@@ -29,7 +28,7 @@ function Promise(excutor) {
 
   try {
     excutor(resolve, reject)
-  } catch (error) { //有错误会走向失败
+  } catch (error) {
     reject(error)
   }
 }
@@ -42,16 +41,15 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
     throw error
   }
   let self = this;
-  // 执行方法，传入值
   let promise2
   if (self.status === "resolved") {
     return new Promise(function (resolve, reject) {
-      // 前一个then中不管成功还是失败返回值都会作为下一then中成功时的回调
       try {
         let x = onFulfilled(self.value);
         if (x instanceof Promise) {
           x.then(resolve, reject)
         } else {
+          // 前一个then中不管成功还是失败返回值都会作为下一then中成功时的回调
           resolve(x)
         }
       } catch (error) {
