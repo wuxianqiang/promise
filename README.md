@@ -198,30 +198,38 @@ function Promise(excutor) {
 }
 
 Promise.prototype.then = function (onFulfilled, onRejected) {
-  typeof onFulfilled === 'function' ? onFulfilled : function (data) {
+  onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : function (data) {
     resolve(data)
   }
-  typeof onRejected === 'function' ? onRejected : function (err) {
+  onRejected = typeof onRejected === 'function' ? onRejected : function (err) {
     throw err
   }
   if (self.status === 'resolved') {
     return new Promise(function (resolve, reject) {
-      let promise2 = onFulfilled(self.value)
-      if (promise2 instanceof Promise) {
-        promise2.then(resolve, reject)
-      } else {
-        resolve(promise2)
+      try {
+        let promise2 = onFulfilled(self.value)
+        if (promise2 instanceof Promise) {
+          promise2.then(resolve, reject)
+        } else {
+          resolve(promise2)
+        }
+      } catch (err) {
+        reject(err)
       }
     })
   }
 
   if (self.status === 'rejected') {
     return new Promise(function (resolve, reject) {
-      let promise2 = onRejected(self.reason)
-      if (promise2 instanceof Promise) {
-        promise2.then(resolve, reject)
-      } else {
-        resolve(promise2)
+      try {
+        let promise2 = onRejected(self.reason)
+        if (promise2 instanceof Promise) {
+          promise2.then(resolve, reject)
+        } else {
+          resolve(promise2)
+        }
+      } catch (err) {
+        reject(err)
       }
     })
   }
@@ -233,7 +241,7 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
         if (promise2 instanceof Promise) {
           promise2.then(resolve, reject)
         } else {
-          resolve(self.value)
+          resolve(promise2)
         }
       }
     )
@@ -243,10 +251,14 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
         if (promise2 instanceof Promise) {
           promise2.then(resolve, reject)
         } else {
-          resolve(self.value)
+          resolve(promise2)
         }
       }
     )
   }
+}
+
+Promise.prototype.catch = function (callback) {
+  this.then(null, callback)
 }
 ```
