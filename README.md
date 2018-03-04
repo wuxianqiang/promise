@@ -124,7 +124,7 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
       if (promise2 instanceof Promise) {
         promise2.then(resolve, reject)
       } else {
-        resolve(self.value)
+        resolve(promise2)
       }
     })
   }
@@ -135,31 +135,31 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
       if (promise2 instanceof Promise) {
         promise2.then(resolve, reject)
       } else {
-        resolve(self.value)
+        resolve(promise2)
       }
     })
   }
 
   if (self.status === 'padding') {
     self.onFulfilledCallBacks.push(
-      new Promise(function (resolve, reject) {
+      function (resolve, reject) {
         let promise2 = onFulfilled(self.value)
         if (promise2 instanceof Promise) {
           promise2.then(resolve, reject)
         } else {
-          resolve(self.value)
+          resolve(promise2)
         }
-      })
+      }
     )
     self.onRejectedCallBacks.push(
-      new Promise(function (resolve, reject) {
+      function (resolve, reject) {
         let promise2 = onRejected(self.reason)
         if (promise2 instanceof Promise) {
           promise2.then(resolve, reject)
         } else {
-          resolve(self.value)
+          resolve(promise2)
         }
-      })
+      }
     )
   }
 }
@@ -198,8 +198,8 @@ function Promise(excutor) {
 }
 
 Promise.prototype.then = function (onFulfilled, onRejected) {
-  typeof onFulfilled === 'function' ? onFulfilled : function (value) {
-    resolve(value)
+  typeof onFulfilled === 'function' ? onFulfilled : function (data) {
+    resolve(data)
   }
   typeof onRejected === 'function' ? onRejected : function (err) {
     throw err
@@ -210,7 +210,7 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
       if (promise2 instanceof Promise) {
         promise2.then(resolve, reject)
       } else {
-        resolve(self.value)
+        resolve(promise2)
       }
     })
   }
@@ -221,36 +221,32 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
       if (promise2 instanceof Promise) {
         promise2.then(resolve, reject)
       } else {
-        resolve(self.value)
+        resolve(promise2)
       }
     })
   }
 
   if (self.status === 'padding') {
     self.onFulfilledCallBacks.push(
-      new Promise(function (resolve, reject) {
+      function (resolve, reject) {
         let promise2 = onFulfilled(self.value)
         if (promise2 instanceof Promise) {
           promise2.then(resolve, reject)
         } else {
           resolve(self.value)
         }
-      })
+      }
     )
     self.onRejectedCallBacks.push(
-      new Promise(function (resolve, reject) {
+      function (resolve, reject) {
         let promise2 = onRejected(self.reason)
         if (promise2 instanceof Promise) {
           promise2.then(resolve, reject)
         } else {
           resolve(self.value)
         }
-      })
+      }
     )
   }
-}
-
-Promise.prototype.catch = function (callback) {
-  this.then(null, callback)
 }
 ```
