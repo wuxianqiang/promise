@@ -35,7 +35,7 @@ function Promise(excutor) {
 
 Promise.prototype.then = function (onFulfilled, onRejected) {
   onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : function (data) {
-    resolve(data)
+    return data
   }
   onRejected = typeof onRejected === 'function' ? onRejected : function (error) {
     throw error
