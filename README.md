@@ -52,14 +52,14 @@ function Promise(excutor) {
     if (self.status === 'pending') {
       self.value = value
       self.status = 'fulfilled'
-      self.onFulfilledCallbacks.forEach(item => item())
+      self.onFulfilledCallbacks.forEach(item => item(self.value))
     }
   }
   function reject(reason) {
     if (self.status === 'pending') {
       self.reason = reason
       self.status = 'rejected'
-      self.onRejectedCallbacks.forEach(item => item())
+      self.onRejectedCallbacks.forEach(item => item(self.reason))
     }
   }
   try {
