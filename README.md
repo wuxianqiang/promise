@@ -38,7 +38,8 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
   }
 }
 ```
-Promise中常常会写一些异步代码，等到异步操作执行完成才会触发resolve或者reject函数，当执行then方法的时候此时的状态还是初始的pending状态，所以为了能取到值，我们可以通过发布订阅模式来写，实现基本的调用。
+Promise中常常会写一些异步代码，等到异步操作执行完成才会触发resolve或者reject函数，当执行then方法的时候此时的状态还是初始的pending状态，所以为了能取到值，我们可以通过发布订阅模式来写。
+## 基本调用
 ```js
 function Promise(excutor) {
   let self = this
@@ -120,7 +121,7 @@ promise2.then((res) => {
   console.log(res)//不管上一次then执行的那个回调函数，在这里都可以接收到参数
 })
 ```
-实现链式调用
+## 实现链式调用
 ```js
 Promise.prototype.then = function (onFulfilled, onRejected) {
   let self = this
